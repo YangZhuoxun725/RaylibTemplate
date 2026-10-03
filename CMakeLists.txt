@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.24)
 
 # To rename the project, change the name here. Nothing else needs to change.
-project(RaylibTemplate VERSION 0.1.0 LANGUAGES C CXX)
+project(MyGame VERSION 0.1.0 LANGUAGES C CXX)
 
 # ------------------------------------------------------------------------------
 # Language settings
@@ -13,6 +13,8 @@ set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)  # for clangd / IDE tooling
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+option(USE_PCH "Use a precompiled header (src/pch.hpp) to speed up compilation" ON)
 
 # ------------------------------------------------------------------------------
 # Build configurations
@@ -55,6 +57,13 @@ file(GLOB_RECURSE GAME_SOURCES CONFIGURE_DEPENDS
 add_executable(${PROJECT_NAME} ${GAME_SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE src)
+
+# Precompiled header (C++ files only). Toggle with -DUSE_PCH=ON/OFF.
+# Source files include "pch.hpp" themselves, so the project builds either way.
+if(USE_PCH)
+    target_precompile_headers(${PROJECT_NAME} PRIVATE
+        "$<$<COMPILE_LANGUAGE:CXX>:${CMAKE_CURRENT_SOURCE_DIR}/src/pch.hpp>")
+endif()
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
     raylib
